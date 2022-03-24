@@ -3,8 +3,10 @@ from dataclasses import dataclass
 from datetime import datetime
 
 # Third Party Imports
+import click
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 from flask_cors import CORS
+from gevent.pywsgi import WSGIServer
 
 # Application Imports
 from constants import APP_KEY, SORTED_BY_OPTIONS, SORTING_OPTION_LABELS, SUPPORTED_CURRENCIES
@@ -81,5 +83,13 @@ def index():
                            sorting_button_label=SORTING_OPTION_LABELS[session.get('sorted_by_index', 0)])
 
 
+@click.command()
+@click.option("--host", type=str, default="localhost")
+@click.option("--port", type=int, default=5000)
+def main(host, port):
+    http_server = WSGIServer(('0.0.0.0', 5000), app)
+    http_server.serve_forever()
+
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    main()
