@@ -1,13 +1,43 @@
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+from dataclasses import dataclass
 from datetime import datetime
 
 
-app = Flask(__name__)
-CORS(app)
+from flask import Flask, jsonify, redirect, render_template, request, url_for
+from flask_cors import CORS
+from flask_wtf import FlaskForm
+from wtforms import DecimalField, StringField, SelectField, SubmitField
+from wtforms.validators import DataRequired
 
 
 IN_MEMORY_STORAGE = []
+SUPPORTED_CURRENCIES = ['USD', 'HUF']
+
+app = Flask(__name__)
+CORS(app)
+app.config['SECRET_KEY'] = 'filesystem'
+
+
+class ExpenseForm(FlaskForm):
+    amount = DecimalField('Amount', validators=[DataRequired()],
+                          render_kw={"placeholder": 0})
+    currency = SelectField('Currency', choices=[SUPPORTED_CURRENCIES],
+                           validate_choice=False)
+    description = StringField('Description', validators=[DataRequired()],
+                              render_kw={"placeholder": "Description"})
+    submit = SubmitField('SAVE')
+
+
+@dataclass
+class Spending:
+    amount : float
+    currency: str
+    description: str
+    spent_at: datetime
+
+
+def persist_spending(spending: Spending):
+    IN_MEMORY_STORAGE.append(spending)
+
 
 @app.route("/spendings", methods=["GET"])
 def get_spendings():
@@ -16,8 +46,26 @@ def get_spendings():
 @app.route("/add_spending", methods=["POST"])
 def add_spending():
     new_spending= request.get_json()
-    IN_MEMORY_STORAGE.append(new_spending)
+    persist_spending(Spending(**new_spending))
     return jsonify({"Response": 200})
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    form = ExpenseForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+
+            persist_spending(Spending(
+                amount=form.amount.data,
+                currency=form.currency.data,
+                description=form.description.data,
+                spent_at=datetime.utcnow()
+            ))
+            return redirect(url_for('index'))
+        else:
+            print(f"Invalid form submitted: {form.errors}")
+    return render_template('index.html', form=form,
+                           exps=IN_MEMORY_STORAGE, currencies=SUPPORTED_CURRENCIES)
 
 
 if __name__ == "__main__":

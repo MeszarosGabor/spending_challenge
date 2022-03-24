@@ -1,0 +1,44 @@
+<html>
+   <head>
+       <title>*Expense TRACKER* </title>
+   </head>
+       <body>        
+        <h1>Record Expense:</h1>
+        <div> 
+        <form action="" method="post" novalidate>
+           {{ form.hidden_tag() }}
+
+           {{ form.description(size=8) }}
+           
+           <select name="currency">
+           {% for curr in currencies %}
+            <option value="{{ curr }}" SELECTED>{{ curr }}</option>
+           {% endfor %}   
+           </select>
+           
+           {{ form.amount(size=8) }}
+              
+           {{ form.submit() }}
+        </form>
+        </div>
+        
+        {%if form.errors:%}
+        <div>
+          <h2> ERROR! </h2>
+          <ul>
+          {%for k, v in form.errors.items():%}
+            <li> {{k}}: {{v}}</li>
+          </ul>
+          {% endfor %}
+        {%endif%}
+        </div>
+
+        
+        <h1> Expenses </h1>
+        <ol>
+          {% for expense in exps %}
+            <li> {{ expense}}</li>
+          {% endfor %}
+       </ol>
+    </body>
+</html>
