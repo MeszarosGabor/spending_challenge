@@ -80,8 +80,8 @@ def index():
     return render_template('index.html', form=form,
                            exps=filtered_data,
                            currencies=SUPPORTED_CURRENCIES,
-                           sorting_button_label=SORTING_OPTION_LABELS[session.get('sorted_by_index', 0)])
-
+                           sorting_button_label=SORTING_OPTION_LABELS[session.get('sorted_by_index', 0)],
+                           listed_currency=session.get('listed_currency'))
 
 @click.command()
 @click.option("--host", type=str, default="localhost")

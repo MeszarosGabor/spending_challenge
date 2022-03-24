@@ -5,6 +5,12 @@
         .grid-container{
           column-count: 4;
         }
+        .active-button{
+          background-color: green;
+        }
+        .inactive-button{
+          background-color: white;
+        }
       </style>
    </head>
        <body>        
@@ -41,10 +47,17 @@
         <a href="/switch_sorting"><input type="button" value={{sorting_button_label}}></a>
 
         {% for curr in currencies %}
-        <a href="/switch_listed_currency/{{curr}}"><input type="button" value={{curr}}></a>
+          {%if curr == listed_currency%}
+            <a href="/switch_listed_currency/{{curr}}"><input class="active-button" type="button" value={{curr}}></a>
+          {%else%}
+            <a href="/switch_listed_currency/{{curr}}"><input class="inactive-button" type="button" value={{curr}}></a>
+          {%endif%}
         {%endfor%}
-        <a href="/switch_listed_currency/"><input type="button" value="ALL"></a>
-
+        {%if listed_currency%}
+        <a href="/switch_listed_currency/"><input class="inactive-button"  type="button" value="ALL"></a>
+        {%else%}
+        <a href="/switch_listed_currency/"><input class="active-button"  type="button" value="ALL"></a>
+        {%endif%}
         <div class="grid-container">
           {% for expense in exps %}
           <div class="grid-item">{{expense.description}}</div>
