@@ -54,10 +54,17 @@ def add_spending():
 
 @app.route("/switch_sorting", methods=["GET"])
 def switch_sorting():
-
     session['sorted_by_index'] = (session.get('sorted_by_index', 0) + 1) % len(SORTED_BY_OPTIONS)
     return redirect(url_for('index'))
 
+@app.route('/switch_listed_currency/', defaults={'curr': None})
+@app.route("/switch_listed_currency/<curr>", methods=["GET"])
+def switch_listed_currency(curr):
+    if not curr:
+        session['listed_currency'] = None
+    else:
+        session['listed_currency'] = curr
+    return redirect(url_for('index'))
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -79,7 +86,11 @@ def index():
         sorting_key = lambda spending: spending.spent_at
     else:
         sorting_key = lambda spending: spending.amount
-    sorted_data = sorted(IN_MEMORY_STORAGE, key=sorting_key)
+    if session.get('listed_currency'):
+        filtered_data = [e for e in IN_MEMORY_STORAGE if e.currency == session['listed_currency']]
+    else:
+        filtered_data = IN_MEMORY_STORAGE
+    sorted_data = sorted(filtered_data, key=sorting_key)
     return render_template('index.html', form=form,
                            exps=sorted_data,
                            currencies=SUPPORTED_CURRENCIES,

@@ -39,6 +39,12 @@
         
         <h1> Expenses </h1>
         <a href="/switch_sorting"><input type="button" value={{sorting_button_label}}></a>
+
+        {% for curr in currencies %}
+        <a href="/switch_listed_currency/{{curr}}"><input type="button" value={{curr}}></a>
+        {%endfor%}
+        <a href="/switch_listed_currency/"><input type="button" value="ALL"></a>
+
         <div class="grid-container">
           {% for expense in exps %}
           <div class="grid-item">{{expense.description}}</div>
