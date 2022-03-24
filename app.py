@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 
-from flask import Flask, jsonify, redirect, render_template, request, url_for
+from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 from flask_cors import CORS
 from flask_wtf import FlaskForm
 from wtforms import DecimalField, StringField, SelectField, SubmitField
@@ -11,6 +11,9 @@ from wtforms.validators import DataRequired
 
 IN_MEMORY_STORAGE = []
 SUPPORTED_CURRENCIES = ['USD', 'HUF']
+
+SORTED_BY_OPTIONS = ["amount", "spent_at",]
+SORTING_OPTION_LABELS = ["Sort_by_Amount", "Sort_by_Time"]
 
 app = Flask(__name__)
 CORS(app)
@@ -49,6 +52,14 @@ def add_spending():
     persist_spending(Spending(**new_spending))
     return jsonify({"Response": 200})
 
+@app.route("/switch_sorting", methods=["GET"])
+def switch_sorting():
+
+    session['sorted_by_index'] = (session.get('sorted_by_index', 0) + 1) % len(SORTED_BY_OPTIONS)
+    return redirect(url_for('index'))
+
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     form = ExpenseForm()
@@ -64,8 +75,15 @@ def index():
             return redirect(url_for('index'))
         else:
             print(f"Invalid form submitted: {form.errors}")
+    if SORTED_BY_OPTIONS[session.get('sorted_by_index',0)] == 'spent_at':
+        sorting_key = lambda spending: spending.spent_at
+    else:
+        sorting_key = lambda spending: spending.amount
+    sorted_data = sorted(IN_MEMORY_STORAGE, key=sorting_key)
     return render_template('index.html', form=form,
-                           exps=IN_MEMORY_STORAGE, currencies=SUPPORTED_CURRENCIES)
+                           exps=sorted_data,
+                           currencies=SUPPORTED_CURRENCIES,
+                           sorting_button_label=SORTING_OPTION_LABELS[session.get('sorted_by_index', 0)])
 
 
 if __name__ == "__main__":

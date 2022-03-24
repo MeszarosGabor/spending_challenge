@@ -1,9 +1,14 @@
 <html>
    <head>
        <title>*Expense TRACKER* </title>
+       <style>
+        .grid-container{
+          column-count: 4;
+        }
+      </style>
    </head>
        <body>        
-        <h1>Record Expense:</h1>
+        <h1>Expense TRACKER</h1>
         <div> 
         <form action="" method="post" novalidate>
            {{ form.hidden_tag() }}
@@ -25,20 +30,28 @@
         {%if form.errors:%}
         <div>
           <h2> ERROR! </h2>
-          <ul>
           {%for k, v in form.errors.items():%}
-            <li> {{k}}: {{v}}</li>
-          </ul>
+          <p>{{k}}: {{v}}</p>
           {% endfor %}
         {%endif%}
         </div>
 
         
         <h1> Expenses </h1>
-        <ol>
+        <a href="/switch_sorting"><input type="button" value={{sorting_button_label}}></a>
+        <div class="grid-container">
           {% for expense in exps %}
-            <li> {{ expense}}</li>
+          <div class="grid-item">{{expense.description}}</div>
           {% endfor %}
-       </ol>
+          {% for expense in exps %}
+          <div class="grid-item">{{expense.currency}}</div>
+          {% endfor %}
+          {% for expense in exps %}
+          <div class="grid-item">{{expense.amount}}</div>
+          {% endfor %}
+          {% for expense in exps %}
+          <div class="grid-item">{{expense.spent_at}}</div>
+          {% endfor %}
+      </div >
     </body>
 </html>
