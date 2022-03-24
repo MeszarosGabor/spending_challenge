@@ -1,3 +1,6 @@
+"""
+Data Persistence Module.
+"""
 # Standard Library Imports
 from collections import deque
 
@@ -17,17 +20,17 @@ IN_MEMORY_STORAGE = {
 
 
 def persist_spending(spending: Spending):
-
     for prefix in [spending.currency, "ALL"]:
         # By Amount
         for index, item in enumerate(IN_MEMORY_STORAGE[f"{prefix}_by_amount"]):
             if item.amount > spending.amount:
-                IN_MEMORY_STORAGE[f"{prefix}_by_amount"].insert(index, spending)
+                IN_MEMORY_STORAGE[f"{prefix}_by_amount"].insert(index,
+                                                                spending)
                 break
         else:
             IN_MEMORY_STORAGE[f"{prefix}_by_amount"].append(spending)
 
-        #By Time
+        # By Time
         for index, item in enumerate(IN_MEMORY_STORAGE[f"{prefix}_by_time"]):
             if item.spent_at > spending.spent_at:
                 IN_MEMORY_STORAGE[f"{prefix}_by_time"].insert(index, spending)

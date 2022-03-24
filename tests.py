@@ -20,7 +20,7 @@ def client(get_app):
 
 ############################### TESTS ################################
 def test_spendings_endpoint_empty_response(client):
-        response = client.get("/spendings")
+        response = client.get("/spendings/")
         assert response.status_code == 200
         assert len(response.json) == 0
 
@@ -35,7 +35,7 @@ def test_POST_spending(client):
     response = client.post("/add_spending",
                            json=json_)
     assert response._status_code == 200
-    response = client.get("/spendings")
+    response = client.get("/spendings/")
     assert response._status_code == 200
     assert len(response.json) == 1
     assert response.json[0]['spent_at'] == 'Thu, 01 Jan 1970 01:00:01 GMT'

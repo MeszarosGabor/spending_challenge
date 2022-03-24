@@ -13,7 +13,7 @@ from constants import SUPPORTED_CURRENCIES
 
 @dataclass
 class Spending:
-    amount : float
+    amount: float
     currency: str
     description: str
     spent_at: datetime
