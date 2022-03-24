@@ -32,10 +32,12 @@ def switch_listed_currency(curr):
         session['listed_currency'] = curr
     return redirect(url_for('index'))
 
-
-@app.route("/spendings", methods=["GET"])
-def get_spendings():
-    return jsonify(IN_MEMORY_STORAGE)
+@app.route('/spendings/', defaults={'curr': None, 'by_what':'amount'})
+@app.route("/spendings/<curr>/<by_what>", methods=["GET"])
+def get_spendings(curr, by_what):
+    if not curr:
+        curr = "ALL"
+    return jsonify(list(IN_MEMORY_STORAGE[f"{curr}_by_{by_what}"]))
 
 
 @app.route("/add_spending", methods=["POST"])
@@ -62,20 +64,19 @@ def index():
         else:
             print(f"Invalid form submitted: {form.errors}")
 
-    # Apply the filtering and sorting criteria present.
+    # Select the relevant container to display
     if SORTED_BY_OPTIONS[session.get('sorted_by_index',0)] == 'spent_at':
-        sorting_key = lambda spending: spending.spent_at
+        key_postfix = "by_time"
     else:
-        sorting_key = lambda spending: spending.amount
-
-    if session.get('listed_currency'):
-        filtered_data = [e for e in IN_MEMORY_STORAGE if e.currency == session['listed_currency']]
+        key_postfix = "by_amount"
+    currency = session.get('listed_currency')
+    if currency:
+        filtered_data = IN_MEMORY_STORAGE[f"{currency}_{key_postfix}"]
     else:
-        filtered_data = IN_MEMORY_STORAGE
-    sorted_data = sorted(filtered_data, key=sorting_key)
+        filtered_data = IN_MEMORY_STORAGE[f"ALL_{key_postfix}"]
 
     return render_template('index.html', form=form,
-                           exps=sorted_data,
+                           exps=filtered_data,
                            currencies=SUPPORTED_CURRENCIES,
                            sorting_button_label=SORTING_OPTION_LABELS[session.get('sorted_by_index', 0)])
 
